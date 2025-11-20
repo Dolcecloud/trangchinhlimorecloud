@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIMORE CLOUD GAME - Phiên Bản Hoàn Chỉnh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Cấu hình màu Dark Mode chuyên nghiệp */
+        :root {
+            --primary: #3b82f6; 
+            --destructive: #ef4444; 
+            --secondary: #475569; 
+            --background: #121212; 
+            --card: #1f2937; 
+            --input: #374151; 
+            --text-white: #ffffff;
+            --vietinbank: #008757; 
+            --accent: #facc15; 
+        }
+        .dark {
+            background-color: var(--background);
+            color: var(--text-white);
+        }
+        .bg-card { background-color: var(--card); }
+        .border-input { border-color: var(--input); }
+        .text-primary { color: var(--primary); }
+        .bg-primary { background-color: var(--primary); }
+        .bg-secondary { background-color: var(--secondary); }
+        .bg-destructive { background-color: var(--destructive); }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.9); } 
+
+        /* Icon styling (Mô phỏng icon) */
+        .lucide { display: inline-block; width: 1em; height: 1em; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* Custom Transition Class cho Hiệu ứng Bấm */
+        .interactive-btn {
+            transition: all 0.15s ease-in-out;
+            transform: scale(1);
+        }
+        .interactive-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4); /* Highlight shadow when hover */
+        }
+        .interactive-btn:active {
+            transform: scale(0.98);
+            box-shadow: none;
+        }
+        .hidden-form { display: none; }
+    </style>
+</head>
+<body class="dark min-h-screen flex flex-col items-center justify-start py-8 px-4">
+
+    <div id="custom-alert" class="fixed top-0 left-0 right-0 p-4 transition-transform duration-300 hidden text-white text-center font-bold z-50"></div>
+
+    <div class="responsive-content flex flex-col items-center w-full max-w-3xl">
+        
+        <div class="mb-6 mt-4 flex items-center justify-center space-x-2">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-wider">
+                LIMORE
+                <span class="text-primary">CLOUD</span>
+                GAME
+            </h1>
+            <svg class="lucide lucide-cloud w-8 h-8 sm:w-10 sm:h-10" fill="var(--accent)" style="color: var(--accent)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M17.5 18H5a3 3 0 0 1 0-6h13.5a4.5 4.5 0 1 0-4.5 9h-1"/>
+            </svg>
+        </div>
+        
+        <div id="auth-info-wrapper" class="mb-4 w-full flex justify-center flex-col items-center min-h-[50px]">
+            </div>
+
+        <div id="logged-in-buttons" class="grid grid-cols-2 sm:grid-cols-4 gap-2 my-2 w-full hidden">
+            <button id="deposit-btn" class="interactive-btn justify-center gap-2 text-sm font-medium border border-input bg-card shadow-sm hover:bg-gray-700 h-10 w-full px-6 py-2 rounded flex items-center col-span-2 text-white transition duration-150 ease-in-out"> 
+                Nạp Tiền - Số Dư 
+                <svg class="lucide lucide-wallet" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg>
+            </button>
+            <button class="interactive-btn justify-center gap-2 text-sm font-medium bg-secondary text-white shadow-sm hover:bg-slate-700 h-10 w-full px-6 py-2 rounded flex items-center col-span-1 transition duration-150 ease-in-out"> Tài khoản </button>
+            <button id="logout-btn" class="interactive-btn justify-center gap-2 text-sm font-medium bg-destructive text-white shadow-sm hover:bg-red-700 h-10 w-full px-6 py-2 rounded flex items-center col-span-1 transition duration-150 ease-in-out"> Đăng xuất </button>
+            <button class="interactive-btn justify-center gap-2 text-sm font-medium border border-input bg-card shadow-sm hover:bg-gray-700 h-10 w-full px-6 py-2 rounded flex items-center col-span-2 text-white transition duration-150 ease-in-out"> Thông báo </button>
+            <button class="interactive-btn justify-center gap-2 text-sm font-medium bg-secondary text-white shadow-sm hover:bg-slate-700 h-10 w-full px-6 py-2 rounded flex items-center space-x-2 col-span-2 transition duration-150 ease-in-out"> Hướng dẫn bố cục phím </button>
+        </div>
+        
+        <button class="interactive-btn text-primary underline-offset-4 hover:underline h-9 w-full px-6 py-2 rounded flex items-center justify-center"> Dọn bộ nhớ đệm (F5) </button>
+
+        <div class="my-3 p-3 text-center text-sm md:text-base bg-red-600/70 text-white font-bold rounded-xl w-full border border-red-700">
+            <p>Chú Ý: Máy không tự tắt khi thoát web, bạn hãy tự tắt để không bị tính tiền khi nghĩ chơi.</p>
+        </div>
+        
+        <div class="mt-4 w-full flex justify-center">
+            <div class="interactive-btn rounded-xl border border-blue-500/50 bg-gray-800 shadow-2xl shadow-blue-900/40 w-[300px] flex flex-col justify-between transform transition duration-300">
+                <div class="text-center p-5 flex flex-col h-full">
+                    <div class="font-extrabold text-3xl uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400 mb-2 flex items-center justify-center space-x-2">
+                        <svg class="lucide lucide-rocket w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.5 7.5L3 6l4-4 2 2 1.5-1.5 5 5 1.5-1.5 4 4-2 2-1.5 1.5 5 5-2 2-1.5-1.5-5 5-1.5 1.5-4-4zM9 13l-4 4"/></svg>
+                        TIÊU CHUẨN
+                    </div>
+                    
+                    <div class="font-extrabold text-5xl py-3 text-yellow-300 tracking-wider border-b border-gray-700/50 mb-3">
+                        3.000đ<span class="text-3xl font-light">/1h</span>
+                    </div>
+                    
+                    <div class="font-semibold text-lg py-1 text-gray-300">Độ phân giải Full HD</div>
+                    
+                    <textarea class="mt-3 flex min-h-[80px] w-full rounded-md border border-blue-600/50 bg-gray-900 px-3 py-2 shadow-inner text-white font-mono text-xs h-24" disabled>
+[Cấu hình Chi tiết]
+- CPU: 6 Cores, 3.8GHz
+- RAM: 16GB ECC
+- GPU: NVIDIA RTX 2060 (Nâng cấp)
+- SSD: NVMe Tốc độ cao
+                    </textarea>
+                    
+                    <button id="play-btn" class="interactive-btn bg-gradient-to-r from-primary to-blue-600 hover:from-blue-700 hover:to-primary text-white h-14 px-4 py-2 font-extrabold text-xl w-full mt-4 rounded-lg shadow-lg transition duration-200" type="button">
+                        CHƠI NGAY
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="fixed bottom-4 right-4 z-50">
+        <button class="interactive-btn inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-input bg-card text-white shadow-xl hover:bg-gray-700 h-12 px-6 py-2">
+            <svg class="lucide lucide-search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+            GAME/APP 
+        </button>
+    </div>
+    
+    <div id="auth-modal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-xl shadow-2xl p-6 w-full max-w-sm border border-gray-700 animate-in fade-in zoom-in-50">
+            <div class="flex justify-end items-center mb-4 pb-2 border-b border-gray-700">
+                <button id="close-auth-modal-btn" class="text-gray-400 hover:text-white text-3xl font-light leading-none">&times;</button>
+            </div>
+            
+            <div class="flex mb-4">
+                <button id="show-login-btn" class="w-1/2 p-2 font-bold text-lg rounded-t-lg border-b-2 border-primary text-primary">Đăng nhập</button>
+                <button id="show-register-btn" class="w-1/2 p-2 font-bold text-lg rounded-t-lg border-b-2 border-gray-700 text-gray-500 hover:text-white">Đăng ký</button>
+            </div>
+
+            <form id="login-form">
+                <div class="space-y-4">
+                    <input type="text" placeholder="Tên tài khoản (ví dụ: admin)" id="login-username" required class="flex h-10 w-full rounded-md border border-input bg-gray-900 px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="password" placeholder="Mật khẩu" id="login-password" required class="flex h-10 w-full rounded-md border border-input bg-gray-900 px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <button type="submit" class="interactive-btn bg-primary hover:bg-blue-700 text-white font-bold w-full py-2 rounded-md mt-6 transition duration-150">Đăng nhập</button>
+            </form>
+
+            <form id="register-form" class="hidden-form">
+                <div class="space-y-4">
+                    <input type="text" placeholder="Tên tài khoản (Tối thiểu 6 ký tự)" id="register-username" required class="flex h-10 w-full rounded-md border border-input bg-gray-900 px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="password" placeholder="Mật khẩu" id="register-password" required class="flex h-10 w-full rounded-md border border-input bg-gray-900 px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="password" placeholder="Xác nhận mật khẩu" id="register-confirm-password" required class="flex h-10 w-full rounded-md border border-input bg-gray-900 px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <button type="submit" class="interactive-btn bg-green-600 hover:bg-green-700 text-white font-bold w-full py-2 rounded-md mt-6 transition duration-150">Đăng ký</button>
+            </form>
+
+            <p class="text-center text-xs text-gray-500 mt-4">Quên mật khẩu? <a href="#" class="text-primary hover:underline">Liên hệ Admin</a></p>
+        </div>
+    </div>
+    <div id="deposit-modal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-xl shadow-2xl p-6 w-full max-w-lg border border-gray-700 animate-in fade-in zoom-in-50">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-700">
+                <h3 class="text-2xl font-extrabold text-yellow-400 flex items-center">
+                    ⚡ THANH TOÁN TỰ ĐỘNG
+                </h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-white text-3xl font-light leading-none">&times;</button>
+            </div>
+            
+            <div class="text-center mb-4 p-4 border border-gray-700 rounded-lg bg-gray-900">
+                <p class="text-lg font-bold mb-3 text-white">Quét Mã QR Ngân Hàng để Nạp</p>
+                
+                <img src="https://i.imgur.com/QBwEkPz.png" alt="QR Code Nạp Tiền VietinBank" class="w-60 h-60 mx-auto border-4 border-primary rounded-lg object-contain">
+            </div>
+
+            <div class="bg-gray-800 p-4 rounded-xl text-sm text-left border border-gray-700">
+                <p class="text-sm font-bold text-red-400 mb-3 text-center">⚠️ Lưu ý: Tuyệt đối không thay đổi Nội dung chuyển khoản.</p>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center pb-1">
+                        <span class="font-bold text-gray-400">🏦 Ngân hàng:</span>
+                        <span class="font-extrabold text-white text-lg" style="color: var(--vietinbank);">VIETINBANK</span>
+                    </div>
+
+                    <div class="flex justify-between items-center border-t border-gray-700 pt-3">
+                        <span class="font-bold text-gray-400">🔢 Số TK:</span>
+                        <span id="stk-number" class="font-extrabold text-white text-xl">106882688204</span>
+                        <button class="text-sm bg-secondary px-2 py-1 rounded hover:bg-slate-700 transition duration-150" onclick="copyToClipboard('106882688204')">Copy</button>
+                    </div>
+
+                    <div class="flex justify-between items-center border-t border-gray-700 pt-3">
+                        <span class="font-bold text-gray-400">👤 Chủ TK:</span>
+                        <span class="font-bold text-white text-lg">HO VAN MINH</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center border-t border-gray-700 pt-3 bg-gray-700 p-3 rounded-lg shadow-inner">
+                        <span class="font-bold text-yellow-400">📝 Nội dung CK:</span>
+                        <span id="deposit-content-value" class="font-extrabold text-primary text-xl select-all">TRB<span id="user-id-code"></span></span>
+                        <button class="text-sm bg-primary px-2 py-1 rounded hover:bg-blue-700 transition duration-150" onclick="copyContent()">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center bg-yellow-900/50 border border-yellow-700 text-yellow-300 p-3 rounded-xl mt-6">
+                <p class="font-bold">Đã chuyển khoản xong? Hệ thống sẽ tự động cộng tiền sau 1-3 phút (phụ thuộc vào ngân hàng).</p>
+                <p class="text-sm mt-1">Vui lòng chờ đợi và **không cần** nhấn nút xác nhận nào khác.</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- LOGIC JAVASCRIPT MÔ PHỎNG TÍNH NĂNG ---
+        
+        // --- CẤU HÌNH ---
+        const costPerMinute = 50; 
+        const minimumBalanceToStart = 3000; 
+        const userId = 'NAlfvjkBjVzq5kWY'; // Mã ID mặc định
+        
+        // --- TRẠNG THÁI (Lưu trữ và Tải từ LocalStorage) ---
+        let userBalance = parseFloat(localStorage.getItem('userBalance')) || 0; 
+        let currentUsername = localStorage.getItem('currentUsername');
+        let isLoggedIn = !!currentUsername; 
+        
+        let isPlaying = false; 
+
+        // --- DOM ELEMENTS (Lưu ý: balanceDisplayElement sẽ được gán lại khi đăng nhập) ---
+        const authInfoWrapper = document.getElementById('auth-info-wrapper');
+        const loggedInButtons = document.getElementById('logged-in-buttons');
+        let balanceDisplayElement; 
+        const playButton = document.getElementById('play-btn');
+        const depositButton = document.getElementById('deposit-btn');
+        const customAlert = document.getElementById('custom-alert');
+        const depositModal = document.getElementById('deposit-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const userIdCodeElement = document.getElementById('user-id-code');
+        const authModal = document.getElementById('auth-modal');
+        const closeAuthModalBtn = document.getElementById('close-auth-modal-btn');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const showLoginBtn = document.getElementById('show-login-btn');
+        const showRegisterBtn = document.getElementById('show-register-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+
+        // --- HÀM LƯU TRẠNG THÁI ---
+        function saveState() {
+            if (isLoggedIn) {
+                localStorage.setItem('currentUsername', currentUsername);
+                localStorage.setItem('userBalance', userBalance);
+            } else {
+                localStorage.removeItem('currentUsername');
+                localStorage.removeItem('userBalance');
+            }
+        }
+
+
+        // --- HÀM HỖ TRỢ VÀ UI ---
+
+        function formatCurrency(amount) {
+            return amount.toLocaleString('vi-VN') + 'đ';
+        }
+
+        function showAlert(message, type = 'error', duration = 4000) {
+            customAlert.textContent = message;
+            customAlert.classList.remove('hidden', 'bg-red-600', 'bg-green-600', 'bg-yellow-600');
+            customAlert.classList.add('top-0', 'fixed');
+
+            if (type === 'error') {
+                customAlert.classList.add('bg-red-600');
+            } else if (type === 'success') {
+                customAlert.classList.add('bg-green-600');
+            } else if (type === 'warning') {
+                 customAlert.classList.add('bg-yellow-600');
+            }
+
+            setTimeout(() => {
+                customAlert.classList.add('hidden');
+                customAlert.classList.remove('top-0', 'fixed');
+            }, duration);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert("Đã sao chép Số tài khoản thành công!", 'success', 2000);
+            }).catch(err => {});
+        }
+        
+        function copyContent() {
+            const content = userIdCodeElement.parentNode.textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                showAlert("Đã sao chép Nội dung CK thành công!", 'success', 2000);
+            }).catch(err => {});
+        }
+
+        function updateBalanceUI() {
+            if (balanceDisplayElement) {
+                balanceDisplayElement.textContent = formatCurrency(userBalance);
+                
+                if (userBalance >= minimumBalanceToStart) {
+                    balanceDisplayElement.classList.remove('text-red-500');
+                    balanceDisplayElement.classList.add('text-green-400');
+                } else {
+                    balanceDisplayElement.classList.remove('text-green-400');
+                    balanceDisplayElement.classList.add('text-red-500');
+                }
+            }
+        }
+        
+        // Cập nhật giao diện theo trạng thái Đăng nhập/Chưa đăng nhập
+        function updateAuthUI() {
+            if (isLoggedIn) {
+                // Hiển thị thông tin người dùng
+                authInfoWrapper.innerHTML = `
+                    <div class="mb-4 text-white text-center text-sm md:text-base">
+                        Xin chào: <span class="font-bold text-accent">${currentUsername}</span> - Số dư chính/tổng: <span id="user-balance-display-logged" class="font-bold text-red-500">0đ</span>/<span class="font-bold text-red-500">0đ</span> - Mã ID: <span class="font-bold" id="user-id-logged">${userId}</span>
+                    </div>
+                `;
+                // Gán lại element số dư cho UI đã đăng nhập
+                balanceDisplayElement = document.getElementById('user-balance-display-logged');
+                
+                loggedInButtons.classList.remove('hidden');
+                saveState(); // Lưu trạng thái khi đăng nhập thành công hoặc refresh
+            } else {
+                // Hiển thị nút Đăng nhập/Đăng ký
+                authInfoWrapper.innerHTML = `
+                    <div class="flex space-x-4">
+                        <button id="show-auth-modal-btn" class="interactive-btn bg-primary hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-md">Đăng nhập / Đăng ký</button>
+                    </div>
+                `;
+                loggedInButtons.classList.add('hidden');
+                
+                // Gán lại event listener cho nút mở modal Đăng nhập
+                document.getElementById('show-auth-modal-btn').addEventListener('click', () => {
+                    authModal.classList.remove('hidden');
+                    switchAuthForm('login');
+                });
+                saveState(); // Xóa trạng thái khi đăng xuất
+            }
+            updateBalanceUI();
+        }
+
+        // Chuyển đổi giữa Form Đăng nhập và Đăng ký trong Modal
+        function switchAuthForm(mode) {
+            if (mode === 'login') {
+                loginForm.classList.remove('hidden-form');
+                registerForm.classList.add('hidden-form');
+                showLoginBtn.classList.add('border-primary', 'text-primary');
+                showLoginBtn.classList.remove('border-gray-700', 'text-gray-500');
+                showRegisterBtn.classList.add('border-gray-700', 'text-gray-500');
+                showRegisterBtn.classList.remove('border-primary', 'text-primary');
+            } else {
+                registerForm.classList.remove('hidden-form');
+                loginForm.classList.add('hidden-form');
+                showRegisterBtn.classList.add('border-primary', 'text-primary');
+                showRegisterBtn.classList.remove('border-gray-700', 'text-gray-500');
+                showLoginBtn.classList.add('border-gray-700', 'text-gray-500');
+                showLoginBtn.classList.remove('border-primary', 'text-primary');
+            }
+        }
+
+        // --- XỬ LÝ SỰ KIỆN XÁC THỰC ---
+        
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            // Giả lập kiểm tra
+            if (username && password) {
+                isLoggedIn = true;
+                currentUsername = username;
+                
+                // Tải hoặc đặt số dư ban đầu
+                const savedBalance = localStorage.getItem('userBalance');
+                if (!savedBalance || localStorage.getItem('currentUsername') !== username) {
+                    userBalance = 10000; 
+                } else {
+                    userBalance = parseFloat(savedBalance);
+                }
+                
+                authModal.classList.add('hidden');
+                updateAuthUI();
+                showAlert(`🥳 Đăng nhập thành công! Chào mừng ${currentUsername}.`, 'success', 5000);
+            } else {
+                showAlert('❌ Tên tài khoản hoặc mật khẩu không được để trống.', 'error');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            if (password !== confirmPassword) {
+                showAlert('❌ Mật khẩu xác nhận không khớp.', 'error');
+                return;
+            }
+            if (username.length < 6 || password.length < 6) {
+                showAlert('❌ Tên tài khoản và Mật khẩu phải tối thiểu 6 ký tự.', 'error');
+                return;
+            }
+
+            // Giả lập đăng ký thành công và tự động đăng nhập
+            isLoggedIn = true;
+            currentUsername = username;
+            userBalance = 0; 
+            authModal.classList.add('hidden');
+            updateAuthUI();
+            showAlert(`✅ Đăng ký thành công! Chào mừng ${currentUsername}.`, 'success', 5000);
+        }
+
+        function handleLogout() {
+            isLoggedIn = false;
+            currentUsername = null;
+            userBalance = 0;
+            isPlaying = false;
+            playButton.textContent = 'Chơi Ngay';
+            playButton.classList.remove('bg-yellow-600');
+            playButton.classList.add('bg-primary');
+            updateAuthUI();
+            showAlert('👋 Bạn đã đăng xuất thành công.', 'warning', 3000);
+        }
+
+        // --- KHỞI TẠO VÀ GẮN SỰ KIỆN ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Khởi tạo UI (Tải trạng thái từ localStorage)
+            updateAuthUI();
+            
+            // Gắn sự kiện cho Auth Modal
+            closeAuthModalBtn.addEventListener('click', () => authModal.classList.add('hidden'));
+            showLoginBtn.addEventListener('click', () => switchAuthForm('login'));
+            showRegisterBtn.addEventListener('click', () => switchAuthForm('register'));
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            
+            // Gắn sự kiện cho Logout (Chỉ gắn khi element tồn tại)
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+            
+            // Gắn sự kiện cho Deposit Modal
+            depositButton.addEventListener('click', () => {
+                if (!isLoggedIn) {
+                    showAlert('🚫 Vui lòng Đăng nhập để thực hiện Nạp tiền.', 'error');
+                    authModal.classList.remove('hidden');
+                    return;
+                }
+                if (isPlaying) {
+                    showAlert('🚫 Bạn phải tắt máy trước khi thực hiện giao dịch nạp tiền.', 'error');
+                    return;
+                }
+                depositModal.classList.remove('hidden');
+                userIdCodeElement.textContent = userId;
+            });
+            closeModalBtn.addEventListener('click', () => {
+                depositModal.classList.add('hidden');
+            });
+            
+            // Gắn sự kiện cho nút Chơi Ngay (Play Button)
+            playButton.addEventListener('click', () => {
+                if (!isLoggedIn) {
+                    showAlert('🚫 Vui lòng Đăng nhập để sử dụng dịch vụ.', 'error');
+                    authModal.classList.remove('hidden');
+                    switchAuthForm('login');
+                    return;
+                }
+
+                if (!isPlaying) {
+                    if (userBalance < minimumBalanceToStart) {
+                        showAlert(`🚫 Số dư (${formatCurrency(userBalance)}) không đủ. Vui lòng nạp tối thiểu ${formatCurrency(minimumBalanceToStart)}.`, 'error');
+                        return;
+                    }
+
+                    userBalance -= costPerMinute; 
+                    isPlaying = true;
+                    playButton.textContent = 'DỪNG CHƠI (Đang kết nối)';
+                    playButton.classList.remove('bg-primary');
+                    playButton.classList.add('bg-yellow-600');
+                    updateAuthUI(); 
+                    showAlert("✅ Bắt đầu kết nối Cloud PC. Tính phí 50đ/phút.", 'success', 6000);
+
+                } else {
+                    isPlaying = false;
+                    playButton.textContent = 'Chơi Ngay';
+                    playButton.classList.remove('bg-yellow-600');
+                    playButton.classList.add('bg-primary');
+                    
+                    showAlert("🛑 Đã ngắt kết nối Cloud PC. Phí đã được tính.", 'error', 7000);
+                    updateAuthUI(); 
+                }
+            });
+        });
+    </script>
+</body>
+</html>
